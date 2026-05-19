@@ -70,10 +70,13 @@ public class CommentsCache {
     var jc = JAXBContext.newInstance(Comment.class);
     var xif = XMLInputFactory.newInstance();
 
-    // TODO fix me disabled for now.
-    if (securityEnabled) {
-      xif.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE
-      xif.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // XMLInputFactory.SUPPORT_DTD, Boolean.FALSE
+    // Always use secure XML parser settings for untrusted input.
+    xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    try {
+      xif.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    } catch (IllegalArgumentException ignored) {
+      // Some XMLInputFactory implementations do not support this property.
     }
 
     var xsr = xif.createXMLStreamReader(new StringReader(xml));
